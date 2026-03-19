@@ -1,0 +1,49 @@
+{
+  "name": "the-frogen-source-calculator",
+  "version": "1.0.0",
+  "description": "A modern, multilingual calculator for the GNOME 40+ ecosystem.",
+  "main": "main.js",
+  "author": "TheFrogenSource",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheFrogenSource/TheFrogenSourceCalculator.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --linux AppImage"
+  },
+  "keywords": [
+    "calculator",
+    "gnome",
+    "electron",
+    "appimage",
+    "libadwaita",
+    "dark-mode"
+  ],
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "org.thefrogensource.calculator",
+    "productName": "FrogenCalculator",
+    "copyright": "Copyright © 2026 TheFrogenSource",
+    "directories": {
+      "output": "dist"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility",
+      "executableName": "frogen-calculator"
+    },
+    "files": [
+      "index.html",
+      "main.js",
+      "sfx.wav",
+      "package.json"
+    ]
+  }
+}

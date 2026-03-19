@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="und">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        :root {
+            /* GNOME Light Theme (Libadwaita) */
+            --bg-color: #f6f5f4;
+            --header-bg: #ffffff;
+            --text-color: #2e3436;
+            --btn-bg: #ffffff;
+            --btn-hover: #eeeeec;
+            --accent-color: #3584e4;
+            --accent-text: #ffffff;
+            --display-bg: transparent;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* GNOME Dark Theme (Libadwaita) */
+                --bg-color: #242424;
+                --header-bg: #303030;
+                --text-color: #ffffff;
+                --btn-bg: #383838;
+                --btn-hover: #454545;
+                --accent-color: #62a0ea;
+                --display-bg: transparent;
+                --shadow: 0 4px 8px rgba(0,0,0,0.3);
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: background 0.2s, color 0.2s;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-color);
+        }
+
+        .calculator {
+            width: 320px;
+            background: var(--header-bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .display {
+            padding: 40px 24px;
+            text-align: right;
+            background: var(--display-bg);
+        }
+
+        #prev-op {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            min-height: 1.2rem;
+        }
+
+        #current-op {
+            font-size: 2.5rem;
+            font-weight: 500;
+            margin-top: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            background-color: var(--bg-color);
+        }
+
+        button {
+            border: none;
+            height: 64px;
+            margin: 4px;
+            border-radius: 12px;
+            background: var(--btn-bg);
+            color: var(--text-color);
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button:hover {
+            background: var(--btn-hover);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .accent {
+            background: var(--accent-color);
+            color: var(--accent-text);
+        }
+
+        .accent:hover {
+            filter: brightness(1.1);
+        }
+
+        .wide {
+            grid-column: span 2;
+        }
+
+        /* Symboles Icônes pour le mode multilingue */
+        .icon-backspace::after { content: "⌫"; }
+        .icon-plus-minus::after { content: "±"; }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="display">
+            <div id="prev-op"></div>
+            <div id="current-op">0</div>
+        </div>
+        <div class="buttons">
+            <button onclick="clearDisplay()" style="color: #e01b24;">C</button>
+            <button onclick="appendSymbol('±')">±</button>
+            <button onclick="appendSymbol('%')">%</button>
+            <button onclick="appendSymbol('÷')" class="accent">÷</button>
+
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button onclick="appendSymbol('×')" class="accent">×</button>
+
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button onclick="appendSymbol('-')" class="accent">−</button>
+
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button onclick="appendSymbol('+')" class="accent">+</button>
+
+            <button onclick="appendNumber('0')" class="wide">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button onclick="calculate()" class="accent">=</button>
+        </div>
+    </div>
+
+    <script>
+        const currentOpText = document.getElementById('current-op');
+        const prevOpText = document.getElementById('prev-op');
+        const audio = new Audio('sfx.wav');
+
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = null;
+
+        function playSound() {
+            audio.currentTime = 0;
+            audio.play().catch(e => console.log("Audio play blocked or file missing"));
+        }
+
+        function updateDisplay() {
+            currentOpText.innerText = currentInput;
+            prevOpText.innerText = previousInput + (operation || '');
+        }
+
+        function appendNumber(number) {
+            playSound();
+            if (currentInput === '0' && number !== '.') {
+                currentInput = number;
+            } else {
+                if (number === '.' && currentInput.includes('.')) return;
+                currentInput += number;
+            }
+            updateDisplay();
+        }
+
+        function appendSymbol(op) {
+            playSound();
+            if (op === '±') {
+                currentInput = (parseFloat(currentInput) * -1).toString();
+                updateDisplay();
+                return;
+            }
+            if (currentInput === '') return;
+            if (previousInput !== '') calculate();
+            
+            operation = op;
+            previousInput = currentInput;
+            currentInput = '';
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            playSound();
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            updateDisplay();
+        }
+
+        function calculate() {
+            if (operation === null || currentInput === '') return;
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+
+            switch (operation) {
+                case '+': result = prev + current; break;
+                case '-': result = prev - current; break;
+                case '×': result = prev * current; break;
+                case '÷': result = prev / current; break;
+                case '%': result = prev % current; break;
+                default: return;
+            }
+
+            currentInput = result.toString();
+            operation = null;
+            previousInput = '';
+            updateDisplay();
+        }
+    </script>
+</body>
+</html>
