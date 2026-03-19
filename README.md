@@ -59,3 +59,8 @@ The resulting `.AppImage` file will be located in the `dist/` directory.
 This project is licensed under the [GPL-3.0 License](https://www.gnu.org/licenses/gpl-3.0.html). See the `LICENSE` file for the full text.
 
 ---
+
+## ⚖️ Legal Notice
+This application is built using **Electron**, which bundle components of **Chromium** and **Node.js**. 
+These components are licensed under various open-source licenses (MIT, BSD, etc.). 
+The source code of this calculator is licensed under **GPL-3.0**.
